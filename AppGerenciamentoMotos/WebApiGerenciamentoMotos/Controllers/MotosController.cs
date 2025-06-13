@@ -6,7 +6,7 @@ using WebApiGerenciamentoMotos.ViewModel;
 namespace WebApiGerenciamentoMotos.Controllers
 {
     [ApiController]
-    [Route("api/moto")]
+    [Route("api/motorcycle")]
     public class MotosController : Controller
     {
         private readonly IMotorcycleService _motorcycleService;

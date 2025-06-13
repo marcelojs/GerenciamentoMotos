@@ -5,7 +5,7 @@ using WebApiGerenciamentoMotos.Service.Interface;
 namespace WebApiGerenciamentoMotos.Controllers
 {
     [ApiController]
-    [Route("api/entregador")]
+    [Route("api/deliveryman")]
     public class DeliveryManController : Controller
     {
         private readonly IDeliveryManService _deliveryManService;

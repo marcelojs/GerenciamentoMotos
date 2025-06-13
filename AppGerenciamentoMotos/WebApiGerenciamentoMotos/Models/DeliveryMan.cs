@@ -14,7 +14,7 @@
 
         public string CNHType { get; set; }
 
-        public string CNHImage { get; set; }
+        public string CNHImageName { get; set; }
 
         public bool CNHIsValidForRent()
         {

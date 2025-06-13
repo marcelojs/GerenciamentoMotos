@@ -6,9 +6,9 @@ namespace WebApiGerenciamentoMotos.Data.Interface
     {
         Task<bool> Create(DeliveryMan deliveryMan);
 
-        Task<Motorcycle> GetByCNHOrCNPJ(string cnh, string cnpj);
+        Task<DeliveryMan> GetByCNHOrCNPJ(string cnh, string cnpj);
 
-        Task<Motorcycle> GetByCNPJ(string cnh);
+        Task<DeliveryMan> GetByCNPJ(string cnh);
 
         Task<DeliveryMan> GetById(Guid deliveryManId);
     }

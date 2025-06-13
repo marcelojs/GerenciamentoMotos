@@ -6,7 +6,7 @@ using WebApiGerenciamentoMotos.ViewModel;
 namespace WebApiGerenciamentoMotos.Controllers
 {
     [ApiController]
-    [Route("api/aluguel")]
+    [Route("api/rent")]
     public class RentController : Controller
     {
         private readonly IRentService _rentService;
