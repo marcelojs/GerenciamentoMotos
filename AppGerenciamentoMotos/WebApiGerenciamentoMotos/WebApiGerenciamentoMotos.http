@@ -1,0 +1,6 @@
+@WebApiGerenciamentoMotos_HostAddress = http://localhost:5093
+
+GET {{WebApiGerenciamentoMotos_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
