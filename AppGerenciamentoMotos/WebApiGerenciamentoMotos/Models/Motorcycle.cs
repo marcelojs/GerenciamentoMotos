@@ -1,13 +1,33 @@
-﻿namespace WebApiGerenciamentoMotos.Models
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace WebApiGerenciamentoMotos.Models
 {
     public class Motorcycle
     {
-        public Guid Id { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
 
+        [BsonElement("motorcycleId")]
+        public string MotorcycleId { get; set; }
+
+        [BsonElement("year")]
         public int Year { get; set; }
 
+        [BsonElement("model")]
         public string Model { get; set; }
 
+        [BsonElement("plate")]
         public string Plate { get; set; }
+
+        public void NewId()
+        {
+            var temporaryId = Guid.NewGuid().ToString("D").Split('-');
+            var field1 = temporaryId[0];
+            var field2 = temporaryId[1];
+
+            MotorcycleId = $"{field1}-{field2}-{Plate}-{Year}".ToLower();
+        }
     }
 }

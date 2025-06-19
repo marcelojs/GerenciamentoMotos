@@ -1,72 +1,32 @@
-﻿using Dapper;
-using Microsoft.Extensions.Logging;
-using System.Data.SqlClient;
+﻿using MongoDB.Driver;
+using WebApiGerenciamentoMotos.Data.Context;
 using WebApiGerenciamentoMotos.Models;
 
 namespace WebApiGerenciamentoMotos.Data.Interface
 {
     public class DeliveryManRepository : IDeliveryManRepository
     {
-        private IConfiguration _configuration;
+        private readonly IMongoCollection<DeliveryMan> _deliveryManCollection;
 
-        public DeliveryManRepository(IConfiguration configuration)
+        public DeliveryManRepository(MongoContext mongoContext)
         {
-            _configuration = configuration;
+            _deliveryManCollection = mongoContext.DeliveryMan;
         }
 
-        public async Task<bool> Create(DeliveryMan deliveryMan)
-        {
-            using (var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
-            {
-                var insert = "";
+        public async Task Create(DeliveryMan deliveryMan) =>
+            await _deliveryManCollection.InsertOneAsync(deliveryMan);
 
-                var data = new
-                {
-                    Id = deliveryMan.Id,
-                    Name = deliveryMan.Name,
-                    CNPJ = deliveryMan.CNPJ,
-                    BirthdayDate = deliveryMan.BirthdayDate,
-                    CNHNumber = deliveryMan.CNHNumber,
-                    CNHType = deliveryMan.CNHType,
-                    CNHImage = deliveryMan.CNHImageName
-                };
+        public async Task<DeliveryMan> GetByCNPJ(string cnpj) =>
+            await _deliveryManCollection.Find(m => m.CNPJ == cnpj).FirstOrDefaultAsync();
 
-                var result = await connection.ExecuteAsync(insert, data);
-                return result == 1;
-            }
-        }
+        public async Task<DeliveryMan> GetById(string deliveryManId) =>
+            await _deliveryManCollection.Find(m => m.DeliveryManId == deliveryManId).FirstOrDefaultAsync();
 
         public async Task<DeliveryMan> GetByCNHOrCNPJ(string cnh, string cnpj)
         {
-            using (var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
-            {
-                var select = "";
-                var parameters = new { cnh = cnh, cnpj = cnpj };
-                var result = await connection.QueryFirstAsync<DeliveryMan>(select, parameters);
-                return result;
-            }
-        }
-
-        public async Task<DeliveryMan> GetByCNPJ(string cnh)
-        {
-            using (var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
-            {
-                var select = "";
-                var parameters = new { cnh = cnh };
-                var result = await connection.QueryFirstAsync<DeliveryMan>(select, parameters);
-                return result;
-            }
-        }
-
-        public async Task<DeliveryMan> GetById(Guid deliveryManId)
-        {
-            using (var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
-            {
-                var select = "";
-                var parameters = new { deliveryManId = deliveryManId };
-                var result = await connection.QueryFirstAsync<DeliveryMan>(select, parameters);
-                return result;
-            }
+            var builder = Builders<DeliveryMan>.Filter;
+            var filter = builder.Or(builder.Eq(x => x.CNHNumber, cnh), builder.Eq(x => x.CNPJ, cnpj));
+            return await _deliveryManCollection.Find(filter).FirstOrDefaultAsync();
         }
     }
 }

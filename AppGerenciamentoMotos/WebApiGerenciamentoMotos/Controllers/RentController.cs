@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebApiGerenciamentoMotos.Mapper;
 using WebApiGerenciamentoMotos.Models;
 using WebApiGerenciamentoMotos.Service.Interface;
 using WebApiGerenciamentoMotos.ViewModel;
@@ -17,10 +18,12 @@ namespace WebApiGerenciamentoMotos.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] Rent rent)
+        public async Task<IActionResult> Create([FromBody] RentViewModel rentViewModel)
         {
             try
             {
+                var rent = RentMapper.MapperViewModelToEntityDomain(rentViewModel);
+
                 var result = await _rentService.Create(rent);
 
                 if (result.IsValid)
@@ -34,8 +37,8 @@ namespace WebApiGerenciamentoMotos.Controllers
             }
         }
 
-        [HttpGet("{rentId:guid}")]
-        public async Task<IActionResult> GetByRentId([FromRoute] Guid rentId)
+        [HttpGet("{rentId}")]
+        public async Task<IActionResult> GetByRentId([FromRoute] string rentId)
         {
             try
             {
@@ -44,7 +47,9 @@ namespace WebApiGerenciamentoMotos.Controllers
                 if (result == null)
                     return NotFound();
 
-                return Ok(result);
+                var rentViewModel = RentMapper.MapperEntityDomainToViewModel(result);
+
+                return Ok(rentViewModel);
             }
             catch (Exception error)
             {
@@ -52,8 +57,8 @@ namespace WebApiGerenciamentoMotos.Controllers
             }
         }
 
-        [HttpPut("{rentId:guid}/devolution")]
-        public async Task<IActionResult> SendDevolution([FromRoute] Guid rentId, [FromBody] DateDevolutionViewModel dateDevolutionViewModel)
+        [HttpPut("{rentId}/devolution")]
+        public async Task<IActionResult> SendDevolution([FromRoute] string rentId, [FromBody] DateDevolutionViewModel dateDevolutionViewModel)
         {
             try
             {

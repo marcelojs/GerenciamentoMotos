@@ -7,7 +7,10 @@ namespace WebApiGerenciamentoMotos.Service.Interface
     public interface IRentService
     {
         Task<ValidationResult> Create(Rent rent);
-        Task<Rent> GetById(Guid rentId);
-        Task<ResponseWrapper> UpdateDateDevolutionRentAndReturnFinalValueAllocation(Guid rentId, DateTime dateDevolution);
+        Task<Rent> GetById(string rentId);
+        Task<ResponseWrapper> UpdateDateDevolutionRentAndReturnFinalValueAllocation(string rentId, DateTime dateDevolution);
+
+        Task<ICollection<Plan>> ApenasTeste();
+        
     }
 }

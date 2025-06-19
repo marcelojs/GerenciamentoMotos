@@ -31,20 +31,13 @@ namespace WebApiGerenciamentoMotos.Service.Interface
                 return validation;
             }
 
-            var resultInsert = await _deliveryManRepository.Create(deliveryMan);
-
-            if (!resultInsert)
-            {
-                validation.AddMessageError("Houve uma falha ao tentar inserir dados do entregrador");
-                return validation;
-            }
-
+            await _deliveryManRepository.Create(deliveryMan);
             return validation;
         }
 
-        public Task<ValidationResult> AddPhoto(Guid deluveryManId, string photo)
+        public async Task<ValidationResult> AddPhoto(Guid deluveryManId, string photo)
         {
-            throw new NotImplementedException();
+            return new ValidationResult();
         }
     }
 }

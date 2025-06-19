@@ -9,10 +9,10 @@ namespace WebApiGerenciamentoMotos.Service.Interface
 
         Task<List<Motorcycle>> GetAll();
 
-        Task<ValidationResult> UpdatePlate(Guid motorcycleId, string newPlate);
+        Task<ValidationResult> UpdatePlate(string motorcycleId, string newPlate);
 
         Task<Motorcycle> GetByPlate(string plate);
 
-        Task<ValidationResult> Remove(Guid motorcycleId);
+        Task<ValidationResult> Remove(string motorcycleId);
     }
 }

@@ -1,13 +1,33 @@
-﻿namespace WebApiGerenciamentoMotos.Models
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace WebApiGerenciamentoMotos.Models
 {
     public class Rent
     {
-        public Guid Id { get; set; }
-        public Guid MotorcycleId { get; set; }
-        public Guid DeliveryManId { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
+
+        [BsonElement("rentId")]
+        public string RentId { get; set; }
+
+        [BsonElement("motorcycleId")]
+        public string MotorcycleId { get; set; }
+
+        [BsonElement("deliveryManId")]
+        public string DeliveryManId { get; set; }
+
+        [BsonElement("startDate")]
         public DateTime? StartDate { get; set; }
+
+        [BsonElement("endDate")]
         public DateTime? EndDate { get; set; }
+
+        [BsonElement("previsionFinish")]
         public DateTime? PrevisionFinish { get; set; }
+
+        [BsonElement("plan")]
         public int Plan { get; set; }
 
         public void SetExtraDay()

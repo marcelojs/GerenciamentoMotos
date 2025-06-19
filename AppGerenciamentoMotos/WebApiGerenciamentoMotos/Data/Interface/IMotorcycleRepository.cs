@@ -4,14 +4,14 @@ namespace WebApiGerenciamentoMotos.Data.Interface
 {
     public interface IMotorcycleRepository
     {
-        Task<bool> Create(Motorcycle motorcycle);
+        Task Create(Motorcycle motorcycle);
 
         Task<List<Motorcycle>> GetAll();
 
-        Task<bool> UpdatePlate(Guid motorcycleId, string newPlate);
+        Task<long> UpdatePlate(string motorcycleId, string newPlate);
 
         Task<Motorcycle> GetByPlate(string plate);
 
-        Task<bool> Delete(Guid motorcycleId);
+        Task Delete(string motorcycleId);
     }
 }

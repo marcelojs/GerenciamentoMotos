@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebApiGerenciamentoMotos.Mapper;
 using WebApiGerenciamentoMotos.Models;
 using WebApiGerenciamentoMotos.Service.Interface;
+using WebApiGerenciamentoMotos.ViewModel;
 
 namespace WebApiGerenciamentoMotos.Controllers
 {
@@ -16,11 +18,14 @@ namespace WebApiGerenciamentoMotos.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] DeliveryMan deliveryMan)
+        public async Task<IActionResult> Create([FromBody] DeliveryManViewModel deliveryManViewModel)
         {
             try
             {
+                var deliveryMan = DeliveryManMapper.MapperViewModelToDomain(deliveryManViewModel);
+
                 var result = await _deliveryManService.Create(deliveryMan);
+
                 if(result.IsValid)
                     return Ok();
                 else
@@ -32,7 +37,7 @@ namespace WebApiGerenciamentoMotos.Controllers
             }
         }
 
-        [HttpPost("send-photo/{deliveryManId:guid}/cnh")]
+        [HttpPost("send-photo/{deliveryManId}/cnh")]
         public async Task<IActionResult> Update([FromRoute] Guid ddeliveryManId, [FromBody] string photo)
         {
             try

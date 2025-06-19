@@ -8,17 +8,19 @@ namespace WebApiGerenciamentoMotos.Service
     public class MotorcycleService : IMotorcycleService
     {
         private readonly IMotorcycleRepository _motorcycleRepository;
+        private readonly IRentRepository _rentRepository;
 
-        public MotorcycleService(IMotorcycleRepository motorcycleRepository)
+        public MotorcycleService(IMotorcycleRepository motorcycleRepository, IRentRepository rentRepository)
         {
             _motorcycleRepository = motorcycleRepository;
+            _rentRepository = rentRepository;
         }
 
         public async Task<ValidationResult> Create(Motorcycle motorcycle)
         {
             var validation = new ValidationResult();
 
-            var motorcycleFound = _motorcycleRepository.GetByPlate(motorcycle.Plate);
+            var motorcycleFound = await _motorcycleRepository.GetByPlate(motorcycle.Plate);
 
             if (motorcycleFound != null)
             {
@@ -26,52 +28,49 @@ namespace WebApiGerenciamentoMotos.Service
                 return validation;
             }
 
+            motorcycle.NewId();
             await _motorcycleRepository.Create(motorcycle);
 
             if (motorcycle.Year == 2024)
-            { 
+            {
                 //ToDo: Send MEssage
             }
 
             return validation;
         }
 
-        public async Task<List<Motorcycle>> GetAll()
-        {
-            return await _motorcycleRepository.GetAll();
-        }
+        public async Task<List<Motorcycle>> GetAll() =>
+             await _motorcycleRepository.GetAll();
 
-        public async Task<Motorcycle> GetByPlate(string plate)
-        {
-            return await _motorcycleRepository.GetByPlate(plate);
-        }
 
-        public async Task<ValidationResult> Remove(Guid motorcycleId)
+        public async Task<Motorcycle> GetByPlate(string plate) =>
+             await _motorcycleRepository.GetByPlate(plate);
+
+        public async Task<ValidationResult> Remove(string motorcycleId)
         {
             var validation = new ValidationResult();
-            var result = await _motorcycleRepository.Delete(motorcycleId);
 
-            //ToDo: Validar se existe alocacoes
+            var rents = await _rentRepository.GetAllRentsByMotorcycleId(motorcycleId);
 
-            if (!result)
+            if (!rents.Any())
             {
-                validation.AddMessageError("Houve uma falha ao tentar deletar a moto");
+                validation.AddMessageError("Existem locações para esse veículo, processo abortado");
+                return validation;
             }
 
+            await _motorcycleRepository.Delete(motorcycleId);
             return validation;
-
         }
 
-        public async Task<ValidationResult> UpdatePlate(Guid motorcycleId, string newPlate)
+        public async Task<ValidationResult> UpdatePlate(string motorcycleId, string newPlate)
         {
             var validation = new ValidationResult();
             var result = await _motorcycleRepository.UpdatePlate(motorcycleId, newPlate);
 
-            if (!result)
-            {
-                validation.AddMessageError($"Houve uma falha ao tentar atualizar a placa do veículo");
-            }
+            if(result == 1)
+                return validation;
 
+            validation.AddMessageError($"Não foi encontrado um veículo de ID {motorcycleId} para atualizara a placa");
             return validation;
         }
     }

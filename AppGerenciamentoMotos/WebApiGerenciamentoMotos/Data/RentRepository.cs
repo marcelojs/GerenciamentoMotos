@@ -1,59 +1,32 @@
-﻿using Dapper;
-using System.Data.SqlClient;
+﻿using MongoDB.Driver;
+using WebApiGerenciamentoMotos.Data.Context;
 using WebApiGerenciamentoMotos.Models;
 
 namespace WebApiGerenciamentoMotos.Data.Interface
 {
     public class RentRepository : IRentRepository
     {
-        private IConfiguration _configuration;
+        private readonly IMongoCollection<Rent> _rentCollection;
 
-        public RentRepository(IConfiguration configuration)
+        public RentRepository(MongoContext mongoContext)
         {
-            _configuration = configuration;
+            _rentCollection = mongoContext.Rent;
         }
 
-        public async Task<bool> Create(Rent rent)
+        public async Task Create(Rent rent) =>
+             await _rentCollection.InsertOneAsync(rent);
+
+        public async Task<Rent> GetById(string rentId) =>
+             await _rentCollection.Find(r => r.RentId == rentId).FirstOrDefaultAsync();
+
+        public async Task<ICollection<Rent>> GetAllRentsByMotorcycleId(string motorcycleId) =>
+             await _rentCollection.Find(r => r.MotorcycleId == motorcycleId).ToListAsync();
+
+        public async Task UpdateDateDevolutionRent(string rentId, DateTime dateDevolution)
         {
-            using (var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
-            {
-                var insert = "";
-
-                var data = new { 
-                    Id = rent.Id,
-                    MotorcycleId = rent.MotorcycleId,
-                    DeliveryManId = rent.DeliveryManId,
-                    StartDate = rent.StartDate,
-                    EndDate = rent.EndDate,
-                    PrevisionFinish = rent.PrevisionFinish,
-                    Plan = rent.Plan
-                };
-
-                var result = await connection.ExecuteAsync(insert, data);
-                return result == 1;
-            }
-        }
-
-        public async Task<Rent> GetById(Guid rentId)
-        {
-            using (var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
-            {
-                var select = "";
-                var parameters = new { rentId = rentId };
-                var result = await connection.QueryFirstAsync<Rent>(select, parameters);
-                return result;
-            }
-        }
-
-        public async Task<bool> UpdateDateDevolutionRent(Guid rentId, DateTime dateDevolution)
-        {
-            using (var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
-            {
-                var update = "UPDATE Rent set EndDate = @_dateDevolution where RentId = @_rentId";
-                var data = new { _dateDevolution = dateDevolution, _rentId = rentId };
-                var result = await connection.ExecuteAsync(update, data);
-                return result == 1;
-            }
+            var filter = Builders<Rent>.Filter.Eq(rent => rent.RentId, rentId);
+            var update = Builders<Rent>.Update.Set(rent => rent.EndDate, dateDevolution);
+            await _rentCollection.UpdateOneAsync(filter, update);
         }
     }
 }

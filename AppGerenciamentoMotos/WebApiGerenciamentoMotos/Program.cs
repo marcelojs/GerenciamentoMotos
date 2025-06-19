@@ -1,4 +1,6 @@
 
+using WebApiGerenciamentoMotos.Configuration;
+
 namespace WebApiGerenciamentoMotos
 {
     public class Program
@@ -10,10 +12,10 @@ namespace WebApiGerenciamentoMotos
             // Add services to the container.
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.Configure<MMStoreDatabaseSettings>(builder.Configuration.GetSection("MMStoreDatabase"));
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.RegisterServices();
+            builder.Services.RegisterDependencies(builder.Configuration);
 
             var app = builder.Build();
 

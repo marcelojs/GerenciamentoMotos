@@ -19,6 +19,11 @@ namespace WebApiGerenciamentoMotos.Service
             _deliveryManRepository = deliveryManRepository;
         }
 
+        public async Task<ICollection<Plan>> ApenasTeste()
+        {
+            return await _planRepository.GetAll();
+        }
+
         public async Task<ValidationResult> Create(Rent rent)
         {
             var validation = new ValidationResult();
@@ -63,9 +68,10 @@ namespace WebApiGerenciamentoMotos.Service
             return validation;
         }
 
-        public async Task<Rent> GetById(Guid rentId) => await _rentRepository.GetById(rentId);
+        public async Task<Rent> GetById(string rentId) => 
+            await _rentRepository.GetById(rentId);
 
-        public async Task<ResponseWrapper> UpdateDateDevolutionRentAndReturnFinalValueAllocation(Guid rentId, DateTime dateDevolution)
+        public async Task<ResponseWrapper> UpdateDateDevolutionRentAndReturnFinalValueAllocation(string rentId, DateTime dateDevolution)
         {
             var validation = new ValidationResult();
             var rent = await _rentRepository.GetById(rentId);
@@ -76,7 +82,7 @@ namespace WebApiGerenciamentoMotos.Service
             if (planFound == null)
             {
                 validation.AddMessageError("Houve uma falha ao tentar atualizar a data de devolução do veículo");
-                return new ResponseWrapper(validation, finalValue); 
+                return new ResponseWrapper(validation, finalValue);
             }
 
             if (dateDevolution < rent.PrevisionFinish)
@@ -101,14 +107,7 @@ namespace WebApiGerenciamentoMotos.Service
                 finalValue = 50.0M * extraDays;
             }
 
-            var result = await _rentRepository.UpdateDateDevolutionRent(rentId, dateDevolution);
-
-            if (!result)
-            {
-                validation.AddMessageError("Houve uma falha ao tentar atualizar a data de devolução do veículo");
-                return new ResponseWrapper(validation, finalValue);
-            }
-
+            await _rentRepository.UpdateDateDevolutionRent(rentId, dateDevolution);
             return new ResponseWrapper(validation, finalValue);
         }
     }

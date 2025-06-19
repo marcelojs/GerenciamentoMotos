@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebApiGerenciamentoMotos.Mapper;
 using WebApiGerenciamentoMotos.Models;
 using WebApiGerenciamentoMotos.Service.Interface;
 using WebApiGerenciamentoMotos.ViewModel;
@@ -7,22 +8,23 @@ namespace WebApiGerenciamentoMotos.Controllers
 {
     [ApiController]
     [Route("api/motorcycle")]
-    public class MotosController : Controller
+    public class MotorcycleController : Controller
     {
         private readonly IMotorcycleService _motorcycleService;
-        private ILogger<MotosController> _logger;
+        private ILogger<MotorcycleController> _logger;
 
-        public MotosController(IMotorcycleService motorcycleService, ILogger<MotosController> logger)
+        public MotorcycleController(IMotorcycleService motorcycleService, ILogger<MotorcycleController> logger)
         {
             _motorcycleService = motorcycleService;
             _logger = logger;
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] Motorcycle motorcycle)
+        public async Task<IActionResult> Create([FromBody] MotorcycleViewModel motorcycleViewModel)
         {
             try
             {
+                var motorcycle = MotorcycleMapper.MapperViewModelToEntityDomain(motorcycleViewModel);
                 var result = await _motorcycleService.Create(motorcycle);
 
                 if (result.IsValid)
@@ -42,7 +44,13 @@ namespace WebApiGerenciamentoMotos.Controllers
             try
             {
                 var result = await _motorcycleService.GetByPlate(plate);
-                return Ok(result);
+
+                if (result == null)
+                    return NotFound();
+
+                var motorcycle = MotorcycleMapper.MapperEntityDomainToViewModel(result);
+
+                return Ok(motorcycle);
             }
             catch (Exception error)
             {
@@ -50,8 +58,8 @@ namespace WebApiGerenciamentoMotos.Controllers
             }
         }
 
-        [HttpPost("/{motorcycleId:guid}/plate")]
-        public async Task<IActionResult> Update([FromRoute] Guid motorcycleId, [FromBody] PlateViewModel plateViewModel)
+        [HttpPost("{motorcycleId}/plate")]
+        public async Task<IActionResult> Update([FromRoute] string motorcycleId, [FromBody] PlateViewModel plateViewModel)
         {
             try
             {
@@ -60,7 +68,7 @@ namespace WebApiGerenciamentoMotos.Controllers
                 if (result.IsValid)
                     return Ok();
                 else
-                    return BadRequest();
+                    return BadRequest("Não foi encontrado um veículo para o Id informado");
             }
             catch (Exception error)
             {
@@ -74,7 +82,13 @@ namespace WebApiGerenciamentoMotos.Controllers
             try
             {
                 var result = await _motorcycleService.GetAll();
-                return Ok(result);
+
+                if(result ==  null)
+                    return NoContent();
+
+                var motorcycles = MotorcycleMapper.MapperEntitiesDomainToViewModel(result);
+
+                return Ok(motorcycles);
             }
             catch (Exception error)
             {
@@ -82,8 +96,8 @@ namespace WebApiGerenciamentoMotos.Controllers
             }
         }
 
-        [HttpDelete("{motorcycleId:guid}")]
-        public async Task<IActionResult> DeleteMotorcycle([FromRoute] Guid motorcycleId)
+        [HttpDelete("{motorcycleId}")]
+        public async Task<IActionResult> DeleteMotorcycle([FromRoute] string motorcycleId)
         {
             try
             {

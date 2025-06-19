@@ -4,8 +4,10 @@ namespace WebApiGerenciamentoMotos.Data.Interface
 {
     public interface IRentRepository
     {
-        Task<bool> Create(Rent rent);
-        Task<Rent> GetById(Guid rentId);
-        Task<bool> UpdateDateDevolutionRent(Guid rentId, DateTime dateDevolution); 
+        Task Create(Rent rent);
+        Task<Rent> GetById(string rentId);
+        Task UpdateDateDevolutionRent(string rentId, DateTime dateDevolution);
+
+        Task<ICollection<Rent>> GetAllRentsByMotorcycleId(string motorcycleId);
     }
 }
