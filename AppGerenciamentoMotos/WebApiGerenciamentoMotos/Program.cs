@@ -13,6 +13,8 @@ namespace WebApiGerenciamentoMotos
 
             builder.Services.AddControllers();
             builder.Services.Configure<MMStoreDatabaseSettings>(builder.Configuration.GetSection("MMStoreDatabase"));
+            builder.Services.Configure<KafkaConfig>(builder.Configuration.GetSection("Kafka"));
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.RegisterDependencies(builder.Configuration);

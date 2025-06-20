@@ -5,7 +5,7 @@ using WebApiGerenciamentoMotos.Validation;
 
 namespace WebApiGerenciamentoMotos.Service
 {
-    public class MotorcycleService : IMotorcycleService
+    public class MotorcycleService : ServiceBase, IMotorcycleService
     {
         private readonly IMotorcycleRepository _motorcycleRepository;
         private readonly IRentRepository _rentRepository;
@@ -29,11 +29,17 @@ namespace WebApiGerenciamentoMotos.Service
             }
 
             motorcycle.NewId();
+            var resultIfIsValid = ValidDataMotorcycle(motorcycle);
+
+            if(!resultIfIsValid.IsValid)
+                return resultIfIsValid;
+
+            //Observacao: deixei aberto o create para teste
             await _motorcycleRepository.Create(motorcycle);
 
             if (motorcycle.Year == 2024)
             {
-                //ToDo: Send MEssage
+                //ToDo: Enviar msg para que o consumer grave no banco
             }
 
             return validation;
@@ -41,7 +47,6 @@ namespace WebApiGerenciamentoMotos.Service
 
         public async Task<List<Motorcycle>> GetAll() =>
              await _motorcycleRepository.GetAll();
-
 
         public async Task<Motorcycle> GetByPlate(string plate) =>
              await _motorcycleRepository.GetByPlate(plate);
@@ -67,10 +72,20 @@ namespace WebApiGerenciamentoMotos.Service
             var validation = new ValidationResult();
             var result = await _motorcycleRepository.UpdatePlate(motorcycleId, newPlate);
 
-            if(result == 1)
+            if (result == 1)
                 return validation;
 
             validation.AddMessageError($"Não foi encontrado um veículo de ID {motorcycleId} para atualizara a placa");
+            return validation;
+        }
+
+        public ValidationResult ValidDataMotorcycle(Motorcycle motorcycle)
+        {
+            var validation = new ValidationResult();
+            if (FieldIsValid(motorcycle.Model)) validation.AddMessageError("Modelo não informado");
+            if (FieldIsValid(motorcycle.Plate)) validation.AddMessageError("Placa não informada");
+            if (motorcycle.Year.Equals(0)) validation.AddMessageError("Ano não informado");
+
             return validation;
         }
     }

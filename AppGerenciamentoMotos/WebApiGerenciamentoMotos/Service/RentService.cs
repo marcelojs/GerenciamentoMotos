@@ -81,7 +81,7 @@ namespace WebApiGerenciamentoMotos.Service
 
             if (planFound == null)
             {
-                validation.AddMessageError("Houve uma falha ao tentar atualizar a data de devolução do veículo");
+                validation.AddMessageError("Plano não encontrado pelo número de dias informado");
                 return new ResponseWrapper(validation, finalValue);
             }
 

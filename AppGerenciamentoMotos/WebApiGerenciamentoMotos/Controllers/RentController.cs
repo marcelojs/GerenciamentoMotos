@@ -3,6 +3,7 @@ using WebApiGerenciamentoMotos.Mapper;
 using WebApiGerenciamentoMotos.Models;
 using WebApiGerenciamentoMotos.Service.Interface;
 using WebApiGerenciamentoMotos.ViewModel;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WebApiGerenciamentoMotos.Controllers
 {
@@ -11,10 +12,12 @@ namespace WebApiGerenciamentoMotos.Controllers
     public class RentController : Controller
     {
         private readonly IRentService _rentService;
+        private readonly ILogger<RentController> _logger;
 
-        public RentController(IRentService rentService)
+        public RentController(IRentService rentService, ILogger<RentController> logger)
         {
             _rentService = rentService;
+            _logger = logger;
         }
 
         [HttpPost("create")]
@@ -28,11 +31,13 @@ namespace WebApiGerenciamentoMotos.Controllers
 
                 if (result.IsValid)
                     return Ok();
-                else
-                    return BadRequest();
+
+                _logger.LogError("Não foi possível inserir dados da locação para o entregador {DeliveryManId} e moto {MotorcycleId}", rentViewModel.DeliveryManId, rentViewModel.MotorcycleId);
+                return BadRequest(result.Errors);
             }
             catch (Exception error)
             {
+                _logger.LogError(error, "Houve uma falha ao tentar salvar locação para o entregador {DeliveryManId} e moto {MotorcycleId}", rentViewModel.DeliveryManId, rentViewModel.MotorcycleId);
                 return StatusCode(500, "Houve uma falha ao tentar executar inserção");
             }
         }
@@ -53,24 +58,27 @@ namespace WebApiGerenciamentoMotos.Controllers
             }
             catch (Exception error)
             {
+                _logger.LogError(error, "Houve uma falha ao tentar obter dados da locação para o Id informado {rentId}", rentId);
                 return StatusCode(500, "Houve uma falha ao tentar executar inserção");
             }
         }
 
-        [HttpPut("{rentId}/devolution")]
-        public async Task<IActionResult> SendDevolution([FromRoute] string rentId, [FromBody] DateDevolutionViewModel dateDevolutionViewModel)
+        [HttpPut("{rentId}/date-devolution")]
+        public async Task<IActionResult> SendDateDevolution([FromRoute] string rentId, [FromBody] DateDevolutionViewModel dateDevolutionViewModel)
         {
             try
             {
                 var result = await _rentService.UpdateDateDevolutionRentAndReturnFinalValueAllocation(rentId, dateDevolutionViewModel.Devolution);
 
-                if(result.ValidationResult.IsValid)
+                if (result.ValidationResult.IsValid)
                     return Ok(result.FinalValue);
-                else
-                    return BadRequest(result.ValidationResult);
+
+                _logger.LogError("Não foi possível salvar a data de devolução da locação de Id {rentId}", rentId);
+                return BadRequest(result.ValidationResult.Errors);
             }
             catch (Exception error)
             {
+                _logger.LogError(error, "Houve uma falha ao tentar salvar data de devolução da locação para o Id informado {rentId}", rentId);
                 return StatusCode(500, "Houve uma falha ao tentar executar inserção");
             }
         }

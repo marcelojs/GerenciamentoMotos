@@ -11,10 +11,12 @@ namespace WebApiGerenciamentoMotos.Controllers
     public class DeliveryManController : Controller
     {
         private readonly IDeliveryManService _deliveryManService;
+        private readonly ILogger<DeliveryManController> _logger;
 
-        public DeliveryManController(IDeliveryManService deliveryManService)
+        public DeliveryManController(IDeliveryManService deliveryManService, ILogger<DeliveryManController> logger)
         {
             _deliveryManService = deliveryManService;
+            _logger = logger;
         }
 
         [HttpPost("create")]
@@ -26,13 +28,15 @@ namespace WebApiGerenciamentoMotos.Controllers
 
                 var result = await _deliveryManService.Create(deliveryMan);
 
-                if(result.IsValid)
+                if (result.IsValid)
                     return Ok();
-                else
-                    return BadRequest();
+
+                _logger.LogError("Dados do entregador {DeliveryManId} não persistido na base ", deliveryManViewModel.DeliveryManId);
+                return BadRequest(result.Errors);
             }
-            catch (Exception error) 
+            catch (Exception error)
             {
+                _logger.LogError(error, "Houve uma falha ao tentar inserir dados do entregador na base");
                 return StatusCode(500, "Houve uma falha ao tentar executar inserção");
             }
         }
@@ -44,14 +48,15 @@ namespace WebApiGerenciamentoMotos.Controllers
             {
                 var result = await _deliveryManService.AddPhoto(ddeliveryManId, photo);
 
-                if(result.IsValid)
+                if (result.IsValid)
                     return Ok();
-                else 
-                    return BadRequest();
+
+                _logger.LogError("Imagem do documento do entregador {DeliveryManId} sofreu uma falha ao tentar salvar no sistema", ddeliveryManId);
+                return BadRequest(result.Errors);
             }
-            catch (Exception error) 
+            catch (Exception error)
             {
-                return StatusCode(500, "Houve uma falha ao tentar executar inserção");
+                return StatusCode(500, $"Houve uma falha ao tentar executar o upload do documento do entregador {ddeliveryManId}");
             }
         }
     }

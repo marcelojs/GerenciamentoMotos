@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace WebApiGerenciamentoMotos.Models
+namespace ConsumerMotorcycle.Model
 {
     public class Motorcycle
     {

@@ -4,6 +4,7 @@ using WebApiGerenciamentoMotos.Configuration;
 using WebApiGerenciamentoMotos.Data;
 using WebApiGerenciamentoMotos.Data.Context;
 using WebApiGerenciamentoMotos.Data.Interface;
+using WebApiGerenciamentoMotos.Producer;
 using WebApiGerenciamentoMotos.Service;
 using WebApiGerenciamentoMotos.Service.Interface;
 
@@ -17,6 +18,7 @@ namespace WebApiGerenciamentoMotos
             services.AddScoped<IMotorcycleService, MotorcycleService>();
             services.AddScoped<IDeliveryManService, DeliveryManService>();
             services.AddScoped<IRentService, RentService>();
+            services.AddScoped<IProducerKafka, ProducerKafka>();
 
             //Repository
             services.AddScoped<IMotorcycleRepository, MotorcycleRepository>();

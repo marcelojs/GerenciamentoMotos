@@ -3,6 +3,7 @@ using WebApiGerenciamentoMotos.Mapper;
 using WebApiGerenciamentoMotos.Models;
 using WebApiGerenciamentoMotos.Service.Interface;
 using WebApiGerenciamentoMotos.ViewModel;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WebApiGerenciamentoMotos.Controllers
 {
@@ -29,11 +30,13 @@ namespace WebApiGerenciamentoMotos.Controllers
 
                 if (result.IsValid)
                     return Ok();
-                else
-                    return BadRequest();
+
+                _logger.LogError("Não foi possível inserir dados da moto {Model} e placa {Plate}", motorcycleViewModel.Model, motorcycleViewModel.Plate);
+                return BadRequest();
             }
             catch (Exception error)
             {
+                _logger.LogError(error, "Houve uma falha ao tentar inserir dados da moto {Model} e placa {Plate}", motorcycleViewModel.Model, motorcycleViewModel.Plate);
                 return StatusCode(500, "Houve uma falha ao tentar executar inserção");
             }
         }
@@ -54,7 +57,8 @@ namespace WebApiGerenciamentoMotos.Controllers
             }
             catch (Exception error)
             {
-                return StatusCode(500, "Houve uma falha ao tentar buscar dados");
+                _logger.LogError(error, "Houve uma falha ao tentar obter dados da moto pela placa {Plate}", plate);
+                return StatusCode(500, $"Houve uma falha ao tentar buscar dados da moto pela placa {plate}");
             }
         }
 
@@ -64,14 +68,15 @@ namespace WebApiGerenciamentoMotos.Controllers
             try
             {
                 var result = await _motorcycleService.UpdatePlate(motorcycleId, plateViewModel.Plate);
-
                 if (result.IsValid)
                     return Ok();
-                else
-                    return BadRequest("Não foi encontrado um veículo para o Id informado");
+
+                _logger.LogError("Não foi possível atualizar dados da moto da placa {Plate} e Id {motorcycleId}", plateViewModel.Plate, motorcycleId);
+                return BadRequest(result.Errors);
             }
             catch (Exception error)
             {
+                _logger.LogError(error, "Houve uma falha ao tentar atualizar dados da moto da placa {Plate} e Id {motorcycleId}", plateViewModel.Plate, motorcycleId);
                 return StatusCode(500, "Houve uma falha ao tentar atualizar para nova placa");
             }
         }
@@ -83,15 +88,15 @@ namespace WebApiGerenciamentoMotos.Controllers
             {
                 var result = await _motorcycleService.GetAll();
 
-                if(result ==  null)
+                if (result.Count == 0)
                     return NoContent();
 
                 var motorcycles = MotorcycleMapper.MapperEntitiesDomainToViewModel(result);
-
                 return Ok(motorcycles);
             }
             catch (Exception error)
             {
+                _logger.LogError(error, "Houve uma falha ao tentar obter dados de todas as motos");
                 return StatusCode(500, "Houve uma falha ao tentar carregar todas as motos");
             }
         }
@@ -105,11 +110,13 @@ namespace WebApiGerenciamentoMotos.Controllers
 
                 if (result.IsValid)
                     return Ok();
-                else
-                    return BadRequest();
+
+                _logger.LogError("Não foi possível deletar dados da moto de Id {motorcycleId}",  motorcycleId);
+                return BadRequest(result.Errors);
             }
             catch (Exception error)
             {
+                _logger.LogError(error, "Houve uma falha ao tentar deletar dados da moto de Id {motorcycleId}", motorcycleId);
                 return StatusCode(500, "Houve uma falha ao tentar deletar a moto");
             }
         }
