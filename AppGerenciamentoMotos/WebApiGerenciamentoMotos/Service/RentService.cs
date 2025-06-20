@@ -64,7 +64,8 @@ namespace WebApiGerenciamentoMotos.Service
                 validation.AddMessageError("CNH do entregador inválida para alocação da moto");
                 return validation;
             }
-
+            rent.NewId();
+            await _rentRepository.Create(rent);
             return validation;
         }
 

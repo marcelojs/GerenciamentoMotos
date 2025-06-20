@@ -36,17 +36,23 @@ namespace WebApiGerenciamentoMotos.Models
             foreach (var type in CNHType)
             {
                 if (type == 'A')
-                {
                     cnhIsValid = true;
-                    continue;
-                }
             }
 
             return cnhIsValid;
         }
 
+        public bool CNHIsValid()
+        {
+            if (CNHType == "A") return true;
+            if (CNHType == "B") return true;
+            if (CNHType == "AB") return true;
+
+            return false;
+        }
+
         public void NewId()
-        { 
+        {
             DeliveryManId = Guid.NewGuid().ToString();
         }
     }

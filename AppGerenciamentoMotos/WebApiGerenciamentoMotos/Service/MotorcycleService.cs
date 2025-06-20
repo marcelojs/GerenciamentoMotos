@@ -57,7 +57,7 @@ namespace WebApiGerenciamentoMotos.Service
 
             var rents = await _rentRepository.GetAllRentsByMotorcycleId(motorcycleId);
 
-            if (!rents.Any())
+            if (rents.Any())
             {
                 validation.AddMessageError("Existem locações para esse veículo, processo abortado");
                 return validation;

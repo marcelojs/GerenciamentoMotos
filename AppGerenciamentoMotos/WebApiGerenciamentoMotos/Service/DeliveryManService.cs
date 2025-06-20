@@ -25,12 +25,13 @@ namespace WebApiGerenciamentoMotos.Service.Interface
                 return validation;
             }
 
-            if (deliveryMan.CNHType != "A" && deliveryMan.CNHType != "B" && deliveryMan.CNHType == "AB")
+            if (!deliveryMan.CNHIsValid())
             {
                 validation.AddMessageError("Tipo de CNH informada é inválida");
                 return validation;
             }
 
+            deliveryMan.NewId();
             await _deliveryManRepository.Create(deliveryMan);
             return validation;
         }

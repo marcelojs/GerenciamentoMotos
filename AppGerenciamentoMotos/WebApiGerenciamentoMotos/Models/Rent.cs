@@ -33,7 +33,7 @@ namespace WebApiGerenciamentoMotos.Models
         public void SetExtraDay()
         {
             if(StartDate.HasValue)
-                StartDate.Value.AddDays(1);
+                StartDate = StartDate.Value.AddDays(1);
         }
 
         public bool AllDatesIsValid()
@@ -43,5 +43,12 @@ namespace WebApiGerenciamentoMotos.Models
             
             return false;
         }
+
+        public void NewId()
+        { 
+            RentId = Guid.NewGuid().ToString();
+        }
+
+        //Uma data de cadastro seria interessante ter tbm para ter a data do registro pois o negócio pede para que a data de inicio seja um dia a mais após o cadastro
     }
 }

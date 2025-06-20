@@ -32,7 +32,7 @@ namespace WebApiGerenciamentoMotos.Controllers
                     return Ok();
 
                 _logger.LogError("Não foi possível inserir dados da moto {Model} e placa {Plate}", motorcycleViewModel.Model, motorcycleViewModel.Plate);
-                return BadRequest();
+                return BadRequest(result.Errors);
             }
             catch (Exception error)
             {
@@ -88,7 +88,7 @@ namespace WebApiGerenciamentoMotos.Controllers
             {
                 var result = await _motorcycleService.GetAll();
 
-                if (result.Count == 0)
+                if (result?.Count == 0)
                     return NoContent();
 
                 var motorcycles = MotorcycleMapper.MapperEntitiesDomainToViewModel(result);
